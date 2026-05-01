@@ -1,17 +1,28 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import RegexValidator
 
 
+class UserManager(BaseUserManager):
+    def create_user(self, email, name, password=None, **extra_fields):
+        if not email:
+            raise ValueError("Email is required")
+        email = self.normalize_email(email)
+        user = self.model(email=email, name=name, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, name, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, name, password, **extra_fields)
+
+
 class User(AbstractUser):
-    name = models.CharField(
-        max_length=255,
-        help_text="Full name of the user"
-    )
-    email = models.EmailField(
-        unique=True,
-        help_text="User's email address"
-    )
+    username = None
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
     phone = models.CharField(
         max_length=20,
         blank=True,
@@ -19,32 +30,21 @@ class User(AbstractUser):
         unique=True,
         validators=[
             RegexValidator(
-                regex=r'^\+?1?\d{9,15}$',
-                message='Phone number must be entered in the format: +999999999. Up to 15 digits allowed.',
-                code='invalid_phone'
+                regex=r'^\+?1?\d{9,15}$'
             )
-        ],
-        help_text="User's phone number"
+        ]
     )
-    image = models.ImageField(
-        upload_to='profile_pictures/%Y/%m/%d/',
-        blank=True,
-        null=True,
-        help_text="User's profile picture"
-    )
-
+    image = models.ImageField(upload_to='images/%Y/%m/%d/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_email_verified = models.BooleanField(default=False)
 
-    username = None
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
+    objects = UserManager()
+
     class Meta:
-        verbose_name = "User"
-        verbose_name_plural = "Users"
         ordering = ['-created_at']
 
     def __str__(self):
