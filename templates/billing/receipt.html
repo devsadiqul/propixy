@@ -1,0 +1,167 @@
+{% extends 'dashboard_base.html' %}
+{% load humanize %}
+
+{% block page_title %}Receipt{% endblock %}
+
+{% block header_actions %}
+<button onclick="window.print()" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+    </svg>
+    Print
+</button>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 print:border-none print:shadow-none">
+        <!-- Header -->
+        <div class="text-center pb-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Propixy</h1>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400">Monthly Bill Receipt</p>
+        </div>
+        
+        <!-- Bill Info -->
+        <div class="py-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400">Unit</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ bill.unit.flat_number }}</p>
+                    <p class="text-gray-600 dark:text-gray-400">{{ bill.unit.building.name }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-gray-500 dark:text-gray-400">Bill Month</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ bill.month }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400">Tenant Name</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ bill.tenant.name }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-gray-500 dark:text-gray-400">Phone</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ bill.tenant.phone }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bill Details -->
+        <div class="py-6">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 dark:text-gray-400">
+                        <th class="pb-3 font-medium">Description</th>
+                        <th class="pb-3 font-medium text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">Monthly Rent</td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.rent|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">
+                            Electricity
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">{{ bill.electricity_units }} units @ ৳{{ bill.electricity_rate }}/unit</span>
+                        </td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.electricity_amount|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">Gas</td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.gas|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">Water</td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.water|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">Service Charge</td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.service_charge|intcomma }}</td>
+                    </tr>
+                    {% if bill.generator > 0 %}
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">Generator</td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.generator|intcomma }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.guard > 0 %}
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">Guard</td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.guard|intcomma }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.cleaner > 0 %}
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">Cleaner</td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.cleaner|intcomma }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.extra > 0 %}
+                    <tr>
+                        <td class="py-3 text-gray-900 dark:text-white">Extra Charges</td>
+                        <td class="py-3 text-right text-gray-900 dark:text-white">৳{{ bill.extra|intcomma }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.advance > 0 %}
+                    <tr>
+                        <td class="py-3 text-green-600 dark:text-green-400">Advance (Deduction)</td>
+                        <td class="py-3 text-right text-green-600 dark:text-green-400">-৳{{ bill.advance|intcomma }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Totals -->
+        <div class="py-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="space-y-2">
+                <div class="flex items-center justify-between text-lg">
+                    <span class="font-semibold text-gray-900 dark:text-white">Total</span>
+                    <span class="font-bold text-gray-900 dark:text-white">৳{{ bill.total|intcomma }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Paid</span>
+                    <span class="text-green-600 dark:text-green-400">৳{{ bill.paid_amount|intcomma }}</span>
+                </div>
+                <div class="flex items-center justify-between text-lg">
+                    <span class="font-semibold text-gray-900 dark:text-white">Due</span>
+                    <span class="font-bold {% if bill.due_amount > 0 %}text-red-600 dark:text-red-400{% else %}text-green-600 dark:text-green-400{% endif %}">৳{{ bill.due_amount|intcomma }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Status -->
+        <div class="pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium {% if bill.payment_status == 'paid' %}bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300{% elif bill.payment_status == 'partial' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300{% else %}bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300{% endif %}">
+                {{ bill.get_payment_status_display }}
+            </span>
+            {% if bill.payment_date %}
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Paid on {{ bill.payment_date|date:"d M Y" }} via {{ bill.get_payment_method_display }}
+            </p>
+            {% endif %}
+        </div>
+        
+        {% if bill.notes %}
+        <div class="pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Notes: {{ bill.notes }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    @media print {
+        body * { visibility: hidden; }
+        .max-w-2xl, .max-w-2xl * { visibility: visible; }
+        .max-w-2xl { position: absolute; left: 0; top: 0; width: 100%; }
+        nav, header, aside { display: none !important; }
+    }
+</style>
+{% endblock %}

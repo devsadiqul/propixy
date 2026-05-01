@@ -1,0 +1,152 @@
+{% extends 'dashboard_base.html' %}
+
+{% block page_title %}Billing Settings{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Electricity -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Electricity
+                </h3>
+                <div>
+                    <label for="electricity_rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rate per Unit (৳)</label>
+                    <input type="number" name="electricity_rate" id="electricity_rate" step="0.01" min="0"
+                           value="{{ form.electricity_rate.value|default:'8' }}"
+                           class="w-full max-w-xs px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                </div>
+            </div>
+            
+            <!-- Gas -->
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+                    </svg>
+                    Gas
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="gas_charge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Total Charge (৳)</label>
+                        <input type="number" name="gas_charge" id="gas_charge" step="0.01" min="0"
+                               value="{{ form.gas_charge.value|default:'1000' }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="gas_distribution" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distribution</label>
+                        <select name="gas_distribution" id="gas_distribution"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                            <option value="equal" {% if form.gas_distribution.value == 'equal' %}selected{% endif %}>Equal</option>
+                            <option value="floor" {% if form.gas_distribution.value == 'floor' %}selected{% endif %}>Floor-based</option>
+                            <option value="manual" {% if form.gas_distribution.value == 'manual' %}selected{% endif %}>Manual</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Water -->
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    Water
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="water_charge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Total Charge (৳)</label>
+                        <input type="number" name="water_charge" id="water_charge" step="0.01" min="0"
+                               value="{{ form.water_charge.value|default:'500' }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="water_distribution" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distribution</label>
+                        <select name="water_distribution" id="water_distribution"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                            <option value="equal" {% if form.water_distribution.value == 'equal' %}selected{% endif %}>Equal</option>
+                            <option value="floor" {% if form.water_distribution.value == 'floor' %}selected{% endif %}>Floor-based</option>
+                            <option value="manual" {% if form.water_distribution.value == 'manual' %}selected{% endif %}>Manual</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Service Charge -->
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    </svg>
+                    Service Charge
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="service_charge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount (৳)</label>
+                        <input type="number" name="service_charge" id="service_charge" step="0.01" min="0"
+                               value="{{ form.service_charge.value|default:'1500' }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="service_distribution" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distribution</label>
+                        <select name="service_distribution" id="service_distribution"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                            <option value="equal" {% if form.service_distribution.value == 'equal' %}selected{% endif %}>Equal</option>
+                            <option value="floor" {% if form.service_distribution.value == 'floor' %}selected{% endif %}>Floor-based</option>
+                            <option value="manual" {% if form.service_distribution.value == 'manual' %}selected{% endif %}>Manual</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other Charges -->
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Other Charges</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="generator_charge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Generator (৳)</label>
+                        <input type="number" name="generator_charge" id="generator_charge" step="0.01" min="0"
+                               value="{{ form.generator_charge.value|default:'500' }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="guard_charge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Guard (৳)</label>
+                        <input type="number" name="guard_charge" id="guard_charge" step="0.01" min="0"
+                               value="{{ form.guard_charge.value|default:'300' }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="cleaner_charge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cleaner (৳)</label>
+                        <input type="number" name="cleaner_charge" id="cleaner_charge" step="0.01" min="0"
+                               value="{{ form.cleaner_charge.value|default:'200' }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Due Day -->
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div>
+                    <label for="due_day" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Due Day (of each month)</label>
+                    <input type="number" name="due_day" id="due_day" min="1" max="28"
+                           value="{{ form.due_day.value|default:'10' }}"
+                           class="w-full max-w-xs px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 pt-4">
+                <button type="submit" 
+                        class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition">
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

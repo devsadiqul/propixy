@@ -1,0 +1,77 @@
+{% extends 'dashboard_base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+                <input type="text" name="name" id="name" required 
+                       value="{{ form.name.value|default:'' }}"
+                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                       placeholder="Tenant's full name">
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
+                    <input type="tel" name="phone" id="phone" required 
+                           value="{{ form.phone.value|default:'' }}"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                           placeholder="01XXXXXXXXX">
+                </div>
+                
+                <div>
+                    <label for="nid" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">NID (Optional)</label>
+                    <input type="text" name="nid" id="nid"
+                           value="{{ form.nid.value|default:'' }}"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                           placeholder="National ID number">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="unit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assign to Unit (Optional)</label>
+                    <select name="unit" id="unit"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                        <option value="">No unit assigned</option>
+                        {% for choice in form.unit.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if form.unit.value|stringformat:'s' == choice.pk|stringformat:'s' %}selected{% endif %}>{{ choice.flat_number }} - {{ choice.building.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="entry_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Entry Date</label>
+                    <input type="date" name="entry_date" id="entry_date" required 
+                           value="{{ form.entry_date.value|date:'Y-m-d' }}"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <input type="checkbox" name="is_active" id="is_active" 
+                       {% if form.is_active.value or not tenant %}checked{% endif %}
+                       class="w-4 h-4 text-primary-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-primary-500">
+                <label for="is_active" class="text-sm font-medium text-gray-700 dark:text-gray-300">Active tenant</label>
+            </div>
+            
+            <div class="flex items-center gap-4 pt-4">
+                <button type="submit" 
+                        class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition">
+                    {{ button_text }}
+                </button>
+                <a href="{% url 'tenant_list' %}" 
+                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

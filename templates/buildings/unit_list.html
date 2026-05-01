@@ -1,0 +1,113 @@
+{% extends 'dashboard_base.html' %}
+{% load humanize %}
+
+{% block page_title %}Units{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'unit_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
+    Add Unit
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Filter -->
+{% if buildings %}
+<div class="mb-6 flex flex-wrap items-center gap-4">
+    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by:</span>
+    <a href="{% url 'unit_list' %}" 
+       class="px-3 py-1.5 text-sm rounded-lg {% if not selected_building %}bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300{% else %}bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+        All Buildings
+    </a>
+    {% for building in buildings %}
+    <a href="{% url 'unit_list' %}?building={{ building.pk }}" 
+       class="px-3 py-1.5 text-sm rounded-lg {% if selected_building == building.pk|stringformat:'s' %}bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300{% else %}bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+        {{ building.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if units %}
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-700/50">
+                <tr class="text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th class="px-6 py-4">Flat</th>
+                    <th class="px-6 py-4">Building</th>
+                    <th class="px-6 py-4">Floor</th>
+                    <th class="px-6 py-4">Rent</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Tenant</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for unit in units %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="px-6 py-4">
+                        <span class="font-medium text-gray-900 dark:text-white">{{ unit.flat_number }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ unit.building.name }}</td>
+                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ unit.floor }}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">৳{{ unit.monthly_rent|intcomma }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if unit.status == 'occupied' %}bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300{% elif unit.status == 'booked' %}bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300{% else %}bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300{% endif %}">
+                            {{ unit.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">
+                        {% if unit.current_tenant %}
+                            {{ unit.current_tenant.name }}
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'unit_edit' unit.pk %}" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                            <a href="{% url 'unit_delete' unit.pk %}" class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+    <svg class="mx-auto w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z"/>
+    </svg>
+    <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No units yet</h3>
+    <p class="mt-2 text-gray-500 dark:text-gray-400">{% if not buildings %}First add a building, then create units.{% else %}Get started by adding your first unit.{% endif %}</p>
+    {% if buildings %}
+    <a href="{% url 'unit_create' %}" class="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Unit
+    </a>
+    {% else %}
+    <a href="{% url 'building_create' %}" class="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Building First
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

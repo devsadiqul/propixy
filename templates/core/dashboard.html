@@ -1,0 +1,204 @@
+{% extends 'dashboard_base.html' %}
+{% load humanize %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Buildings</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ total_buildings }}</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Units</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ total_units }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <span class="text-green-600 dark:text-green-400">{{ occupied_units }} occupied</span> / 
+                    <span class="text-orange-600 dark:text-orange-400">{{ vacant_units }} vacant</span>
+                </p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Active Tenants</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ total_tenants }}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Expected Rent</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">৳{{ expected_rent|intcomma }}</p>
+            </div>
+            <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Occupancy Rate & Building Stats -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Occupancy Rate -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Occupancy Rate</h3>
+        <div class="flex items-center justify-center">
+            <div class="relative w-32 h-32">
+                <svg class="w-32 h-32 transform -rotate-90">
+                    <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="12" fill="none" class="text-gray-200 dark:text-gray-700"/>
+                    <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="12" fill="none" 
+                            stroke-dasharray="{{ occupancy_rate|floatformat:0 }} {{ 100|add:occupancy_rate|floatformat:0|default:100 }}"
+                            stroke-dashoffset="0"
+                            class="text-primary-600 dark:text-primary-400"
+                            style="stroke-dasharray: calc({{ occupancy_rate }} * 351.86 / 100) 351.86"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-2xl font-bold text-gray-900 dark:text-white">{{ occupancy_rate }}%</span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 flex justify-center gap-6 text-sm">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-primary-600 rounded-full"></span>
+                <span class="text-gray-600 dark:text-gray-400">Occupied ({{ occupied_units }})</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+                <span class="text-gray-600 dark:text-gray-400">Vacant ({{ vacant_units }})</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Building-wise Stats -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Building Overview</h3>
+        {% if building_stats %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <th class="pb-3">Building</th>
+                        <th class="pb-3">Total</th>
+                        <th class="pb-3">Occupied</th>
+                        <th class="pb-3">Vacant</th>
+                        <th class="pb-3">Rate</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for stat in building_stats %}
+                    <tr class="text-sm">
+                        <td class="py-3 font-medium text-gray-900 dark:text-white">{{ stat.name }}</td>
+                        <td class="py-3 text-gray-600 dark:text-gray-400">{{ stat.total_units }}</td>
+                        <td class="py-3 text-green-600 dark:text-green-400">{{ stat.occupied }}</td>
+                        <td class="py-3 text-orange-600 dark:text-orange-400">{{ stat.vacant }}</td>
+                        <td class="py-3">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if stat.occupancy_rate >= 80 %}bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300{% elif stat.occupancy_rate >= 50 %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300{% else %}bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300{% endif %}">
+                                {{ stat.occupancy_rate }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <svg class="mx-auto w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <p class="mt-2 text-gray-500 dark:text-gray-400">No buildings added yet</p>
+            <a href="{% url 'building_create' %}" class="mt-4 inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Add your first building
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Recent Bills -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Bills</h3>
+        <a href="{% url 'bill_list' %}" class="text-sm text-primary-600 hover:text-primary-700 font-medium">View all</a>
+    </div>
+    {% if recent_bills %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th class="pb-3">Unit</th>
+                    <th class="pb-3">Tenant</th>
+                    <th class="pb-3">Month</th>
+                    <th class="pb-3">Total</th>
+                    <th class="pb-3">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for bill in recent_bills %}
+                <tr class="text-sm">
+                    <td class="py-3">
+                        <div class="font-medium text-gray-900 dark:text-white">{{ bill.unit.flat_number }}</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-xs">{{ bill.unit.building.name }}</div>
+                    </td>
+                    <td class="py-3 text-gray-600 dark:text-gray-400">{{ bill.tenant.name }}</td>
+                    <td class="py-3 text-gray-600 dark:text-gray-400">{{ bill.month }}</td>
+                    <td class="py-3 font-medium text-gray-900 dark:text-white">৳{{ bill.total|intcomma }}</td>
+                    <td class="py-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if bill.payment_status == 'paid' %}bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300{% elif bill.payment_status == 'partial' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300{% else %}bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300{% endif %}">
+                            {{ bill.get_payment_status_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-8">
+        <svg class="mx-auto w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">No bills generated yet</p>
+        <a href="{% url 'generate_bills' %}" class="mt-4 inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Generate bills
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

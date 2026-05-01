@@ -1,0 +1,138 @@
+{% extends 'dashboard_base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                <span class="font-medium text-gray-900 dark:text-white">{{ bill.unit.flat_number }}</span> - {{ bill.unit.building.name }} | 
+                Tenant: <span class="font-medium text-gray-900 dark:text-white">{{ bill.tenant.name }}</span> | 
+                Month: <span class="font-medium text-gray-900 dark:text-white">{{ bill.month }}</span>
+            </p>
+        </div>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Rent</h3>
+                <div>
+                    <label for="rent" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Monthly Rent (৳)</label>
+                    <input type="number" name="rent" id="rent" step="0.01" min="0"
+                           value="{{ form.rent.value }}"
+                           class="w-full max-w-xs px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                </div>
+            </div>
+            
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Electricity</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="prev_electricity_reading" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Previous Reading</label>
+                        <input type="number" name="prev_electricity_reading" id="prev_electricity_reading" step="0.01" min="0"
+                               value="{{ form.prev_electricity_reading.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="curr_electricity_reading" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Reading</label>
+                        <input type="number" name="curr_electricity_reading" id="curr_electricity_reading" step="0.01" min="0"
+                               value="{{ form.curr_electricity_reading.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="electricity_rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rate/Unit (৳)</label>
+                        <input type="number" name="electricity_rate" id="electricity_rate" step="0.01" min="0"
+                               value="{{ form.electricity_rate.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Calculated</label>
+                        <div class="px-4 py-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white font-medium">
+                            ৳{{ bill.electricity_amount }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Other Charges</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="gas" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gas (৳)</label>
+                        <input type="number" name="gas" id="gas" step="0.01" min="0"
+                               value="{{ form.gas.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="water" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Water (৳)</label>
+                        <input type="number" name="water" id="water" step="0.01" min="0"
+                               value="{{ form.water.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="service_charge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Service (৳)</label>
+                        <input type="number" name="service_charge" id="service_charge" step="0.01" min="0"
+                               value="{{ form.service_charge.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="generator" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Generator (৳)</label>
+                        <input type="number" name="generator" id="generator" step="0.01" min="0"
+                               value="{{ form.generator.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="guard" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Guard (৳)</label>
+                        <input type="number" name="guard" id="guard" step="0.01" min="0"
+                               value="{{ form.guard.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="cleaner" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cleaner (৳)</label>
+                        <input type="number" name="cleaner" id="cleaner" step="0.01" min="0"
+                               value="{{ form.cleaner.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="extra" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Extra Charges (৳)</label>
+                        <input type="number" name="extra" id="extra" step="0.01" min="0"
+                               value="{{ form.extra.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="advance" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Advance Deduction (৳)</label>
+                        <input type="number" name="advance" id="advance" step="0.01" min="0"
+                               value="{{ form.advance.value }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes (Optional)</label>
+                <textarea name="notes" id="notes" rows="2"
+                          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                          placeholder="Any additional notes">{{ form.notes.value|default:'' }}</textarea>
+            </div>
+            
+            <div class="flex items-center gap-4 pt-4">
+                <button type="submit" 
+                        class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition">
+                    {{ button_text }}
+                </button>
+                <a href="{% url 'bill_list' %}" 
+                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

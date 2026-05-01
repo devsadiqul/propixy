@@ -1,0 +1,128 @@
+{% extends 'dashboard_base.html' %}
+{% load humanize %}
+
+{% block page_title %}Bills{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'generate_bills' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
+    Generate Bills
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Filters -->
+<div class="mb-6 flex flex-wrap items-center gap-4">
+    <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Month:</span>
+        <select onchange="window.location.href='{% url 'bill_list' %}?month=' + this.value + '{% if selected_status %}&status={{ selected_status }}{% endif %}'"
+                class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500">
+            <option value="">All Months</option>
+            {% for month in months %}
+            <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>{{ month }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
+        <a href="{% url 'bill_list' %}{% if selected_month %}?month={{ selected_month }}{% endif %}" 
+           class="px-3 py-1.5 text-sm rounded-lg {% if not selected_status %}bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300{% else %}bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+            All
+        </a>
+        <a href="{% url 'bill_list' %}?status=unpaid{% if selected_month %}&month={{ selected_month }}{% endif %}" 
+           class="px-3 py-1.5 text-sm rounded-lg {% if selected_status == 'unpaid' %}bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300{% else %}bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+            Unpaid
+        </a>
+        <a href="{% url 'bill_list' %}?status=partial{% if selected_month %}&month={{ selected_month }}{% endif %}" 
+           class="px-3 py-1.5 text-sm rounded-lg {% if selected_status == 'partial' %}bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300{% else %}bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+            Partial
+        </a>
+        <a href="{% url 'bill_list' %}?status=paid{% if selected_month %}&month={{ selected_month }}{% endif %}" 
+           class="px-3 py-1.5 text-sm rounded-lg {% if selected_status == 'paid' %}bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300{% else %}bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+            Paid
+        </a>
+    </div>
+</div>
+
+{% if bills %}
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-700/50">
+                <tr class="text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th class="px-6 py-4">Unit</th>
+                    <th class="px-6 py-4">Tenant</th>
+                    <th class="px-6 py-4">Month</th>
+                    <th class="px-6 py-4">Total</th>
+                    <th class="px-6 py-4">Paid</th>
+                    <th class="px-6 py-4">Due</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for bill in bills %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900 dark:text-white">{{ bill.unit.flat_number }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ bill.unit.building.name }}</div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ bill.tenant.name }}</td>
+                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ bill.month }}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">৳{{ bill.total|intcomma }}</td>
+                    <td class="px-6 py-4 text-green-600 dark:text-green-400">৳{{ bill.paid_amount|intcomma }}</td>
+                    <td class="px-6 py-4 text-red-600 dark:text-red-400">৳{{ bill.due_amount|intcomma }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if bill.payment_status == 'paid' %}bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300{% elif bill.payment_status == 'partial' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300{% else %}bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300{% endif %}">
+                            {{ bill.get_payment_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-end gap-1">
+                            <a href="{% url 'bill_receipt' bill.pk %}" class="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="View Receipt">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </a>
+                            <a href="{% url 'bill_payment' bill.pk %}" class="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Record Payment">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </a>
+                            <a href="{% url 'bill_edit' bill.pk %}" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Edit">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                            <a href="{% url 'bill_delete' bill.pk %}" class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Delete">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+    <svg class="mx-auto w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+    </svg>
+    <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No bills found</h3>
+    <p class="mt-2 text-gray-500 dark:text-gray-400">{% if selected_month or selected_status %}No bills match your filters.{% else %}Generate bills for your tenants.{% endif %}</p>
+    <a href="{% url 'generate_bills' %}" class="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Generate Bills
+    </a>
+</div>
+{% endif %}
+{% endblock %}
